@@ -2,7 +2,7 @@ function trt = picktraits(csvfiles,trtlist,idlist,nohdr,saveas)
 % Select a list of traits from the HCP data
 %
 % Usage:
-% trt = picktraits(csvfiles,trtlist,idlist,nohdr)
+% trt = picktraits(csvfiles,trtlist,idlist,nohdr,saveas)
 %
 % - csvfiles : List of restricted, unrestricted, and perhaps other
 %              HCP files containing the traits. If more than one,
