@@ -1,0 +1,37 @@
+#!/bin/bash
+# Print usage if no argument is given
+if [ -z "$1" ]; then
+cat <<EOU
+Fixes issues with the original HCP500 release (08/Jun/2014),
+so that a few broken lines are merged, rogue commas and spaces
+are removed, as well as quotes.
+
+Usage:
+fixHCP500csv restricted.csv [unrestricted.csv]
+
+The outputs are called restricted_fixed.csv and
+unrestricted_fixed.csv
+
+_____________________________________
+Anderson M. Winkler
+FMRIB / Univ. of Oxford
+Jun/2014
+http://brainder.org
+EOU
+exit
+fi
+
+# Restricted
+cat $1 |\
+awk 'BEGIN {FS=","} (NF<198) {(x=(!x)?$0:x$0)} (NF>=198) {if (x=="") {print $0} else {print x; print $0; x=""}}' |\
+awk 'BEGIN {FS="\"";OFS=""} {for (i=2; i<=NF; i+=2) gsub(",", "", $i)} 1' |\
+sed 's/\"//g' |\
+sed 's/\ \,/\,/g' > ${1%.csv}_fixed.csv
+
+# Unrestricted
+if [[ $2 != "" ]] ; then 
+  cat $2 |\
+  awk 'BEGIN {FS="\"";OFS=""} {for (i=2; i<=NF; i+=2) gsub(",", "", $i)} 1' |\
+  sed 's/\"//g' |\
+  sed 's/\ \,/\,/g' > ${2%.csv}_fixed.csv
+fi
