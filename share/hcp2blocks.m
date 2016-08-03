@@ -27,6 +27,10 @@ function varargout = hcp2blocks(restrfile,blocksfile,dz2sib,ids)
 %           - 4th col: sib type
 %           - 5th col: family ID
 %           - 6th col: family type
+% 
+% Reference:
+% * Winkler AM, Webster MA, Vidaurre D, Nichols TE, Smith SM.
+%   Multi-level block permutation. Neuroimage. 2015;123:253-68.
 %
 % _____________________________________
 % Anderson M. Winkler
@@ -57,9 +61,11 @@ tab0a =  cellfun(@isnan, tab(:,1:3));
 tab0b = ~cellfun(@ischar,tab(:,4:5));
 tab0  = any(horzcat(tab0a,tab0b),2);
 idstodel = cell2mat(tab(tab0,1));
-warning([ ...
-    'These subjects have data missing in the restricted file and will be removed: \n' ...
-    repmat('         %d\n',1,numel(idstodel))],idstodel);
+if numel(idstodel),
+    warning([ ...
+        'These subjects have data missing in the restricted file and will be removed: \n' ...
+        repmat('         %d\n',1,numel(idstodel))],idstodel);
+end
 if nargin == 4 && ~ isempty(ids) && ~ isempty(idstodel),
     ids(any(bsxfun(@eq,ids(:),idstodel'),2)) = [];
 end
@@ -100,9 +106,11 @@ if nargin == 4 && ~isempty(ids) && islogical(ids(1)),
 elseif nargin == 4 && ~ isempty(ids),
     idx = bsxfun(@eq,tab(:,1),ids');
     idx = ~ any(idx,1);
-    warning([ ...
-        'These subjects don''t exist in the restricted file and will be removed: \n' ...
-        repmat('         %d\n',1,sum(idx))],ids(idx));
+    if any(idx),
+        warning([ ...
+            'These subjects don''t exist in the restricted file and will be removed: \n' ...
+            repmat('         %d\n',1,sum(idx))],ids(idx));
+    end
     ids(idx)   = [];
     tabnew     = zeros(length(ids),size(tab,2));
     sibtypenew = zeros(length(ids),1);
