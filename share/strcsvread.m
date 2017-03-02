@@ -18,15 +18,15 @@ function table = strcsvread(varargin)
 % http://brainder.org
 
 % Accept the inputs
-error(nargchk(1,3,nargin));
+narginchk(1,3);
 filename = varargin{1};
-if nargin == 3,
+if nargin == 3
     delimiter = sprintf(varargin{2});
     eolmark   = sprintf(varargin{3});
-elseif nargin == 2,
+elseif nargin == 2
     delimiter = sprintf(varargin{2});
     eolmark   = sprintf('\n');
-elseif nargin == 1,
+elseif nargin == 1
     delimiter = sprintf(',');
     eolmark   = sprintf('\n');
 end
@@ -38,7 +38,7 @@ fclose(fid);
 
 % Add an EOL at the end of the stream if not existing
 % This prevents an error later
-if stream(end) ~= eolmark,
+if stream(end) ~= eolmark
     stream = [stream eolmark];
 end
 
@@ -52,24 +52,24 @@ table = cell(numel(eolpos),floor(numel(delpos)/numel(eolpos)));
 
 % Loop over each EOL get the content between each
 eolpos = [0 eolpos];
-for r = 1:numel(eolpos)-1,
+for r = 1:numel(eolpos)-1
     rowtmp = stream(eolpos(r)+1 : eolpos(r+1)-1);
     
     % Loop over each delimiter per row and get the content between
     delpos = find(rowtmp == delimiter);
     delpos = [0 delpos numel(rowtmp)+1]; %#ok
-    for c = 1:numel(delpos)-1,
+    for c = 1:numel(delpos)-1
         
         % Store in the cell array of results
         table{r,c} = rowtmp(delpos(c)+1 : delpos(c+1)-1);
         
         % If the content can be converted to number, do so
         % and deal with the NaN case
-        if isempty(deblank(table{r,c})) || strcmpi(strtrim(table(r,c)),'NaN'),
+        if isempty(deblank(table{r,c})) || strcmpi(strtrim(table(r,c)),'NaN')
             table{r,c} = NaN;
         end
         testnum = str2double(table{r,c});
-        if ~ isnan(testnum),
+        if ~ isnan(testnum)
             table{r,c} = testnum;
         end
     end

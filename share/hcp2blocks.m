@@ -27,7 +27,7 @@ function varargout = hcp2blocks(restrfile,blocksfile,dz2sib,ids)
 %           - 4th col: sib type
 %           - 5th col: family ID
 %           - 6th col: family type
-% 
+%
 % Reference:
 % * Winkler AM, Webster MA, Vidaurre D, Nichols TE, Smith SM.
 %   Multi-level block permutation. Neuroimage. 2015;123:253-68.
@@ -36,7 +36,7 @@ function varargout = hcp2blocks(restrfile,blocksfile,dz2sib,ids)
 % Anderson M. Winkler
 % FMRIB / University of Oxford
 % Dec/2013 (first version)
-% Dec/2015 (this version)
+% Feb/2017 (this version)
 % http://brainder.org
 
 warning off backtrace
@@ -76,7 +76,7 @@ N = size(tab,1);
 % Treat non-monozygotic twins as ordinary siblings.
 if nargin >= 3 && dz2sib,
     for n = 1:N,
-        if strcmpi(tab{n,5},'notmz'),
+        if any(strcmpi(tab{n,5},{'notmz','dz'})),
             tab{n,4} = 'NotTwin';
             tab{n,5} = 'NotTwin';
         end
@@ -89,11 +89,11 @@ end
 % changes here.
 sibtype = zeros(N,1);
 for n = 1:N,
-    if strcmpi(tab{n,4},'nottwin');
+    if strcmpi(tab{n,4},'nottwin'),
         sibtype(n) = 10;
-    elseif strcmpi(tab{n,5},'notmz');
+    elseif any(strcmpi(tab{n,5},{'notmz','dz'})),
         sibtype(n) = 100;
-    elseif strcmpi(tab{n,5},'mz');
+    elseif strcmpi(tab{n,5},'mz'),
         sibtype(n) = 1000;
     end
 end
@@ -150,7 +150,7 @@ end
 % determined by the number and type of siblings.
 F = unique(famid);
 famtype = zeros(N,1);
-for f = 1:numel(F);
+for f = 1:numel(F),
     fidx = F(f) == famid;
     famtype(fidx) = sum(sibtype(fidx)) + numel(unique(tab(fidx,2:3)));
 end
@@ -160,7 +160,7 @@ end
 idx = (sibtype == 100  & (famtype >= 100  & famtype <= 199)) ...
     | (sibtype == 1000 & (famtype >= 1000 & famtype <= 1999));
 sibtype(idx) = 10;
-for f = 1:numel(F);
+for f = 1:numel(F),
     fidx = F(f) == famid;
     famtype(fidx) = sum(sibtype(fidx)) + numel(unique(tab(fidx,2:3)));
 end
@@ -206,21 +206,26 @@ for f = 1:numel(F),
             end
         elseif ft == 34,
             tabx = tab(fidx,2:3);
-            for s = 1:size(tabx,1),
-                if sum(tabx(:,1) == tabx(s,1)) == 2 ...
-                        && sum(tabx(:,2) == tabx(s,2)) == 2,
-                    B{f}(s,2) = B{f}(s,2) + 1;
+            if size(unique(tabx,'rows'),1) == 3 && ...
+                    numel(unique(tabx(:,1))) == 2 && ...
+                    numel(unique(tabx(:,2))) == 2,
+                for s = 1:size(tabx,1),
+                    B{f}(s,2) = -B{f}(s,2);
                 end
+                famtype(fidx) = 39;
             end
         elseif ft == 43,
             tabx = tab(fidx,2:3);
+            k = 0;
             for s = 1:size(tabx,1),
-                if (sum(tabx(:,1) == tabx(s,1)) == 3 && ...
-                        sum(tabx(:,2) == tabx(s,2)) == 4) || ...
-                        (sum(tabx(:,1) == tabx(s,1)) == 4 && ...
-                        sum(tabx(:,2) == tabx(s,2)) == 3),
+                if tabx(s,1) == tabx(1,1) && ...
+                        tabx(s,2) == tabx(1,2),
                     B{f}(s,2) = B{f}(s,2) + 1;
+                    k = k + 1;
                 end
+            end
+            if k == 2,
+                famtype(fidx) = 49;
             end
         elseif ft == 223,
             sibx = sibtype(fidx);

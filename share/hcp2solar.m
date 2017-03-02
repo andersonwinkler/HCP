@@ -152,6 +152,8 @@ fprintf(fid,pedheader);
 fprintf(fid,printfmt,ped');
 fclose(fid);
 
-% Depending on the version of strcsvread, there may be many NaNs
+% ------------------------------------------------
 function y = chknan(x)
+% Depending on the version of strcsvread,
+% there may be many NaNs
 y = any(isnan(x(:)));

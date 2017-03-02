@@ -12,7 +12,7 @@ function trt = picktraits(csvfiles,trtlist,idlist,nohdr,saveas)
 %              locations can be defined inside).
 % - trtlist  : List of traits to be selected, e.g.:
 %              {'CardSort_AgeAdj','Flanker_AgeAdj','ListSort_AgeAdj'}
-% - idlist   : List of subject IDs to be selected, e.g.:
+% - idlist   : Optional. List of subject IDs to be selected, e.g.:
 %              [100307 100408 101107 101309 101410 102008 102311]'
 % - nohdr    : Optional. A flag to indicate whether the headers for
 %              rows and columns should be removed.
@@ -34,7 +34,7 @@ elseif nargin == 3,
     nohdr = false;
     saveas = '';
 end
-
+%csvfiles = {'restricted_zygmerged.csv','unrestricted.csv'};
 if isempty(csvfiles),
     
     % Default locations (change here as needed)
@@ -70,8 +70,8 @@ end
 tab = horzcat(tab{:});
 
 % Pick the IDs,
-if ~ isempty(idlist);
-    idcol = find(strcmp('Subject',tab(1,:)));
+if ~ isempty(idlist)
+    idcol = strcmp('Subject',tab(1,:));
     ids   = cell2mat(tab(2:end,idcol));
     ididx = zeros(size(idlist));
     for i = 1:numel(idlist),
