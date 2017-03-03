@@ -1,8 +1,9 @@
 #!/bin/gawk -f
 
 BEGIN { if (ARGV[1] == "") { 
-print "Merge fields 'ZygositySR' with 'ZygosityGT' from"
-print "the 'restricted' HCP csv file (data release S1200)."
+print "Merge the fields 'ZygositySR' with 'ZygosityGT' from"
+print "the 'restricted' HCP csv file (data release S1200),"
+print "producing a new field 'Zygosity' (last column)."
 print ""
 print "Example:"
 print "mergezyg restricted.csv > restricted_zygmerged.csv"
