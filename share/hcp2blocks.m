@@ -50,15 +50,14 @@ tmp = strcsvread(restrfile);
 egid_idx = find(strcmpi(tmp(1,:),'Subject'));
 moid_idx = find(strcmpi(tmp(1,:),'Mother ID')   | strcmpi(tmp(1,:),'Mother_ID'));
 faid_idx = find(strcmpi(tmp(1,:),'Father ID')   | strcmpi(tmp(1,:),'Father_ID'));
-twst_idx = find(strcmpi(tmp(1,:),'Twin Status') | strcmpi(tmp(1,:),'Twin_Stat'));
 zygo_idx = find(strcmpi(tmp(1,:),'Zygosity'));
 agey_idx = strcmpi(tmp(1,:),'Age_in_Yrs');
-tab = tmp(2:end,[egid_idx moid_idx faid_idx twst_idx zygo_idx]);
+tab = tmp(2:end,[egid_idx moid_idx faid_idx zygo_idx]);
 age = cell2mat(tmp(2:end,agey_idx));
 
 % If subjects have these elementary info missing, remove them
 tab0a =  cellfun(@isnan, tab(:,1:3));
-tab0b = ~cellfun(@ischar,tab(:,4:5));
+tab0b = ~cellfun(@ischar,tab(:,4));
 tab0  = any(horzcat(tab0a,tab0b),2);
 idstodel = cell2mat(tab(tab0,1));
 if numel(idstodel),
@@ -76,9 +75,8 @@ N = size(tab,1);
 % Treat non-monozygotic twins as ordinary siblings.
 if nargin >= 3 && dz2sib,
     for n = 1:N,
-        if any(strcmpi(tab{n,5},{'notmz','dz'})),
+        if any(strcmpi(tab{n,4},{'notmz','dz'})),
             tab{n,4} = 'NotTwin';
-            tab{n,5} = 'NotTwin';
         end
     end
 end
@@ -91,9 +89,9 @@ sibtype = zeros(N,1);
 for n = 1:N,
     if strcmpi(tab{n,4},'nottwin'),
         sibtype(n) = 10;
-    elseif any(strcmpi(tab{n,5},{'notmz','dz'})),
+    elseif any(strcmpi(tab{n,4},{'notmz','dz'})),
         sibtype(n) = 100;
-    elseif strcmpi(tab{n,5},'mz'),
+    elseif strcmpi(tab{n,4},'mz'),
         sibtype(n) = 1000;
     end
 end

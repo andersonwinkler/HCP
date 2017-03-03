@@ -1,0 +1,23 @@
+#!/bin/gawk -f
+
+BEGIN { if (ARGV[1] == "") { 
+print "Merge fields 'ZygositySR' with 'ZygosityGT' from"
+print "the 'restricted' HCP csv file (data release S1200)."
+print ""
+print "Example:"
+print "mergezyg restricted.csv > restricted_zygmerged.csv"
+print ""
+print "Note that the '>' is mandatory."
+print ""
+print "_____________________________________"
+print "Anderson M. Winkler"
+print "FMRIB / Univ. of Oxford"
+print "Mar/2017"
+print "http://brainder.org"
+exit } }
+
+BEGIN { FS="," ; OFS="," } 
+NR == 1 { print $0,"Zygosity" } 
+NR >  1 { if ( $4 == "" || $4 == " " ) {
+   print $0,$3 } else { 
+   print $0,$4 } }

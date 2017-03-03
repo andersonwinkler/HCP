@@ -35,9 +35,8 @@ tmpr = strcsvread(restrfile);
 egid_idx = find(strcmpi(tmpr(1,:),'Subject'));
 moid_idx = find(strcmpi(tmpr(1,:),'Mother ID')   | strcmpi(tmpr(1,:),'Mother_ID'));
 faid_idx = find(strcmpi(tmpr(1,:),'Father ID')   | strcmpi(tmpr(1,:),'Father_ID'));
-twst_idx = find(strcmpi(tmpr(1,:),'Twin Status') | strcmpi(tmpr(1,:),'Twin_Stat'));
 zygo_idx = find(strcmpi(tmpr(1,:),'Zygosity'));
-tabr = tmpr(2:end,[egid_idx moid_idx faid_idx twst_idx zygo_idx]);
+tabr = tmpr(2:end,[egid_idx moid_idx faid_idx zygo_idx]);
 
 % Load the unrestricted data
 tmpu = strcsvread(unrestrfile);
@@ -121,7 +120,7 @@ if strcmpi(hhoption,'mother'),
 end
 
 % MZ subjects
-mzidx = strcmpi(tabr(:,5),'MZ');
+mzidx = strcmpi(tabr(:,4),'MZ');
 mfm = horzcat(idsr(:,2:3),mzidx);
 mz = z;
 for m = find(mzidx)',
