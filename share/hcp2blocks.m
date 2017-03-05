@@ -187,7 +187,7 @@ B = cell(numel(F),1);
 for f = 1:numel(F),
     fidx = F(f) == famid;
     ft = famtype(find(fidx,1));
-    if any(ft == [(12:10:92) 23 202 224 2002]),
+    if any(ft == [(12:10:92) 23 202 2002]),
         B{f} = horzcat(famid(fidx),sibtype(fidx),tab(fidx,1));
     else
         B{f} = horzcat(-famid(fidx),sibtype(fidx),tab(fidx,1));
@@ -223,15 +223,25 @@ for f = 1:numel(F),
                     B{f}(s,2) = B{f}(s,2) + 1;
                 end
             end
+        elseif ft == 54,
+            tabx = tab(fidx,2:3);
+            for s = 1:size(tabx,1),
+                if      sum(tabx(:,1) == tabx(s,1)) == 4 && ...
+                        sum(tabx(:,2) == tabx(s,2)) == 2,
+                    B{f}(s,2) = B{f}(s,2) + 1;
+                elseif  sum(tabx(:,1) == tabx(s,1)) == 1 && ...
+                        sum(tabx(:,2) == tabx(s,2)) == 3,
+                    B{f}(s,2) = B{f}(s,2) - 1;
+                end
+            end
         elseif ft == 34,
             tabx = tab(fidx,2:3);
-            if size(unique(tabx,'rows'),1) == 3 && ...
-                    numel(unique(tabx(:,1))) == 2 && ...
-                    numel(unique(tabx(:,2))) == 2,
-                for s = 1:size(tabx,1),
-                    B{f}(s,2) = -B{f}(s,2);
+            for s = 1:size(tabx,1),
+                if     (sum(tabx(:,1) == tabx(s,1)) == 2 && ...
+                        sum(tabx(:,2) == tabx(s,2)) == 2),
+                    B{f}(s,2) = B{f}(s,2) + 1;
+                    famtype(fidx) = 39;
                 end
-                famtype(fidx) = 39;
             end
         elseif ft == 43,
             tabx = tab(fidx,2:3);
@@ -245,6 +255,15 @@ for f = 1:numel(F),
             end
             if k == 2,
                 famtype(fidx) = 49;
+                B{f}(:,1) = -B{f}(:,1);
+            end
+        elseif ft == 44,
+            tabx = tab(fidx,2:3);
+            for s = 1:size(tabx,1),
+                if      sum(tabx(:,1) == tabx(s,1)) == 4 && ...
+                        sum(tabx(:,2) == tabx(s,2)) == 2,
+                    B{f}(s,2) = B{f}(s,2) + 1;
+                end
             end
         elseif ft == 223,
             sibx = sibtype(fidx);
