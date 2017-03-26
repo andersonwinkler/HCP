@@ -157,7 +157,6 @@ end
 % non-twins, so fix and repeat computing the family types
 idx = (sibtype == 100  & (famtype >= 100  & famtype <= 199)) ...
     | (sibtype == 1000 & (famtype >= 1000 & famtype <= 1999));
-idx = idx | tab(:,1) == 174437 | tab(:,1) == 256540; % This is specific for release S1200
 sibtype(idx) = 10;
 for f = 1:numel(F),
     fidx = F(f) == famid;
