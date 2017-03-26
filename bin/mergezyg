@@ -20,10 +20,10 @@ exit } }
 BEGIN { FS="," ; OFS="," } 
 NR == 1 { print $0, "Zygosity" } 
 NR >  1 { 
-if ( $4 == "" || $4 == " " )
-  { if ( $3 == "" || $3 == " " || $3 == "true" || $3 == "false" )
+if ( $5 == "" || $5 == " " )
+  { if ( $4 == "" || $4 == " " )
          { print $0, "" } 
-    else { print $0, $3 } } 
-else { print $0, $4 } }
+    else { print $0, $4 } } 
+else { print $0, $5 } }
 
 
