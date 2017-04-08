@@ -1,4 +1,4 @@
-function varargout = hcp2blocks(restrfile,blocksfile,dz2sib,ids)
+function varargout = hcp2blocks(restrfile,blocksfile,dz2sib,ids,showreport)
 % Takes a "restricted data" CSV file from the HCP and generates
 % a block file that can be used to make permutations in PALM.
 %
@@ -65,7 +65,7 @@ if numel(idstodel),
         'These subjects have data missing in the restricted file and will be removed: \n' ...
         repmat('         %d\n',1,numel(idstodel))],idstodel);
 end
-if nargin == 4 && ~ isempty(ids) && ~ isempty(idstodel),
+if nargin >= 4 && ~ isempty(ids) && ~ isempty(idstodel),
     ids(any(bsxfun(@eq,ids(:),idstodel'),2)) = [];
 end
 tab(tab0,:) = [];
@@ -277,6 +277,17 @@ for f = 1:numel(F),
             elseif tmpage(2) == tmpage(3),
                 B{f}(1,2) = 10;
             end
+        elseif ft == 313 || ft == 314,
+            famtype(fidx) = ft - 100 + 10;
+            tmpage = age(fidx);
+            didx = find(B{f}(:,2) == 100);
+            if tmpage(didx(1)) == tmpage(didx(2)),
+                B{f}(didx(3),2) = 10;
+            elseif tmpage(didx(1)) == tmpage(didx(3)),
+                B{f}(didx(2),2) = 10;
+            elseif tmpage(didx(2)) == tmpage(didx(3)),
+                B{f}(didx(1),2) = 10;
+            end
         end
     end
 end
@@ -303,6 +314,43 @@ end
 % Save as CSV
 if nargin >= 2 && ~isempty(blocksfile) && ischar(blocksfile),
     dlmwrite(blocksfile,B,'precision','%d');
+end
+
+% Print a simplified report if requested
+if nargin >= 5 && showreport,
+    fprintf('Family type,Count,Sibship size,Number of subjects,Abbreviated description\n');
+    U = unique(B(:,2));
+    for u = 1:size(U,1),
+        switch U(u)
+            case 12,   abbrv = '1 NS';
+            case 22,   abbrv = '2 FS';
+            case 32,   abbrv = '3 FS';
+            case 33,   abbrv = '2 FS + 1 HS';
+            case 34,   abbrv = '3 HS';
+            case 39,   abbrv = '3 HS/NS';
+            case 42,   abbrv = '4 FS';
+            case 43,   abbrv = '3 FS + 1 HS';
+            case 52,   abbrv = '5 FS';
+            case 53,   abbrv = '3 FS + 2 FS';
+            case 202,  abbrv = '2 DZ';
+            case 212,  abbrv = '2 DZ + 1 FS';
+            case 213,  abbrv = '2 DZ + 1 HS';
+            case 222,  abbrv = '2 DZ + 2 FS';
+            case 223,  abbrv = '2 DZ + 1 FS + 1 HS';
+            case 224,  abbrv = '2 DZ + 2 HS';
+            case 234,  abbrv = '2 DZ + 2 HS + 1 HS/NS';
+            case 2002, abbrv = '2 MZ';
+            case 2012, abbrv = '2 MZ + 1 FS';
+            case 2013, abbrv = '2 MZ + 1 HS';
+            case 2022, abbrv = '2 MZ + 2 FS';
+            case 2023, abbrv = '2 MZ + 2 HS';
+            case 2032, abbrv = '2 MZ + 3 FS';
+            case 2042, abbrv = '2 MZ + 4 FS';
+        end
+        nP(u) = numel(unique(B(B(:,2) == U(u),3)));
+        nS(u) = sum(B(:,2) == U(u));
+        fprintf('%d,%d,%d,%d,%s\n',U(u),nP(u),nS(u)/nP(u),nS(u),abbrv);
+    end
 end
 
 warning on backtrace
