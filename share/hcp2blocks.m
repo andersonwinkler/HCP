@@ -44,6 +44,24 @@ warning off backtrace
 % Load the data and select what is now needed
 tmp = strcsvread(restrfile);
 
+% If there is no Zygosity field, create it from ZygSR and ZygGT
+zygo_idx = find(strcmpi(tmp(1,:),'Zygosity'));
+if isempty(zygo_idx),
+    zygoSR_idx = find(strcmpi(tmp(1,:),'ZygositySR'));
+    zygoGT_idx = find(strcmpi(tmp(1,:),'ZygosityGT'));
+    tmp(:,end+1) = cell(size(tmp,1),1);
+    tmp{1,end} = 'Zygosity';
+    for s = 2:size(tmp,1),
+        if  (numel(tmp{s,zygoGT_idx}) == 1 && isnan(tmp{s,zygoGT_idx})) || ...
+            (ischar(tmp{s,zygoGT_idx}) && strcmpi(tmp{s,zygoGT_idx},' ')) || ...
+            isempty(tmp{s,zygoGT_idx}),
+            tmp{s,end} = tmp{s,zygoSR_idx};
+        else
+            tmp{s,end} = tmp{s,zygoGT_idx};
+        end
+    end
+end
+
 % Locate the columns with the relevant pieces of info, i.e.,
 % egoid, moid, faid, twin status and zygozity, in this exact
 % order, and take just them
@@ -253,6 +271,7 @@ for f = 1:numel(F),
                 end
             end
             if k == 2,
+                tab(fidx,1:4)
                 famtype(fidx) = 49;
                 B{f}(:,1) = -B{f}(:,1);
             end
@@ -330,8 +349,11 @@ if nargin >= 5 && showreport,
             case 39,   abbrv = '3 HS/NS';
             case 42,   abbrv = '4 FS';
             case 43,   abbrv = '3 FS + 1 HS';
+            case 44,   abbrv = '2 FS + 2 HS';
+            case 49,   abbrv = '2 FS + 2 FS';
             case 52,   abbrv = '5 FS';
-            case 53,   abbrv = '3 FS + 2 FS';
+            case 53,   abbrv = '3 FS/HS + 2 FS/HS';
+            case 54,   abbrv = '2 FS/HS + 2 FS/HS + 1 HS/NS';
             case 202,  abbrv = '2 DZ';
             case 212,  abbrv = '2 DZ + 1 FS';
             case 213,  abbrv = '2 DZ + 1 HS';

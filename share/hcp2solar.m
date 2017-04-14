@@ -31,12 +31,32 @@ function hcp2solar(restrfile,unrestrfile,pedfile,hhoption)
 % http://brainder.org
 
 % Load the restricted data
-tmpr = strcsvread(restrfile);
-egid_idx = find(strcmpi(tmpr(1,:),'Subject'));
-moid_idx = find(strcmpi(tmpr(1,:),'Mother ID')   | strcmpi(tmpr(1,:),'Mother_ID'));
-faid_idx = find(strcmpi(tmpr(1,:),'Father ID')   | strcmpi(tmpr(1,:),'Father_ID'));
-zygo_idx = find(strcmpi(tmpr(1,:),'Zygosity'));
-tabr = tmpr(2:end,[egid_idx moid_idx faid_idx zygo_idx]);
+tmp = strcsvread(restrfile);
+
+% If there is no Zygosity field, create it from ZygSR and ZygGT
+zygo_idx = find(strcmpi(tmp(1,:),'Zygosity'));
+if isempty(zygo_idx),
+    zygoSR_idx = find(strcmpi(tmp(1,:),'ZygositySR'));
+    zygoGT_idx = find(strcmpi(tmp(1,:),'ZygosityGT'));
+    tmp(:,end+1) = cell(size(tmp,1),1);
+    tmp{1,end} = 'Zygosity';
+    for s = 2:size(tmp,1),
+        if  (numel(tmp{s,zygoGT_idx}) == 1 && isnan(tmp{s,zygoGT_idx})) || ...
+            (ischar(tmp{s,zygoGT_idx}) && strcmpi(tmp{s,zygoGT_idx},' ')) || ...
+            isempty(tmp{s,zygoGT_idx}),
+            tmp{s,end} = tmp{s,zygoSR_idx};
+        else
+            tmp{s,end} = tmp{s,zygoGT_idx};
+        end
+    end
+end
+
+% Locate the columns with the relevant pieces of info
+egid_idx = find(strcmpi(tmp(1,:),'Subject'));
+moid_idx = find(strcmpi(tmp(1,:),'Mother ID') | strcmpi(tmp(1,:),'Mother_ID'));
+faid_idx = find(strcmpi(tmp(1,:),'Father ID') | strcmpi(tmp(1,:),'Father_ID'));
+zygo_idx = find(strcmpi(tmp(1,:),'Zygosity'));
+tabr = tmp(2:end,[egid_idx moid_idx faid_idx zygo_idx]);
 
 % Load the unrestricted data
 tmpu = strcsvread(unrestrfile);
