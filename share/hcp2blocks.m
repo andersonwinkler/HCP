@@ -298,6 +298,9 @@ for f = 1:numel(F),
             end
         elseif ft == 313 || ft == 314,
             famtype(fidx) = ft - 100 + 10;
+            if famtype(fidx) == 223,
+                famtype(fidx) = 229;
+            end
             tmpage = age(fidx);
             didx = find(B{f}(:,2) == 100);
             if tmpage(didx(1)) == tmpage(didx(2)),
@@ -359,7 +362,8 @@ if nargin >= 5 && showreport,
             case 213,  abbrv = '2 DZ + 1 HS';
             case 222,  abbrv = '2 DZ + 2 FS';
             case 223,  abbrv = '2 DZ + 1 FS + 1 HS';
-            case 224,  abbrv = '2 DZ + 2 HS';
+            case 224,  abbrv = '2 DZ + 2 FS/HS';
+            case 229,  abbrv = '2 DZ + 2 HS/HS';
             case 234,  abbrv = '2 DZ + 2 HS + 1 HS/NS';
             case 2002, abbrv = '2 MZ';
             case 2012, abbrv = '2 MZ + 1 FS';
