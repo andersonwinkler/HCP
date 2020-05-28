@@ -271,7 +271,7 @@ for f = 1:numel(F),
                 end
             end
             if k == 2,
-                tab(fidx,1:4)
+                tab(fidx,1:4);
                 famtype(fidx) = 49;
                 B{f}(:,1) = -B{f}(:,1);
             end
