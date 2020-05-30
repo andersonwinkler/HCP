@@ -79,9 +79,9 @@ tab0b = ~cellfun(@ischar,tab(:,4));
 tab0  = any(horzcat(tab0a,tab0b),2);
 idstodel = cell2mat(tab(tab0,1));
 if numel(idstodel),
-    warning([ ...
+    warning(sprintf([ ...
         'These subjects have data missing in the restricted file and will be removed: \n' ...
-        repmat('         %d\n',1,numel(idstodel))],idstodel);
+        repmat('         %d\n',1,numel(idstodel))],idstodel));
 end
 if nargin >= 4 && ~ isempty(ids) && ~ isempty(idstodel),
     ids(any(bsxfun(@eq,ids(:),idstodel'),2)) = [];
@@ -123,9 +123,9 @@ elseif nargin == 4 && ~ isempty(ids),
     idx = bsxfun(@eq,tab(:,1),ids');
     idx = ~ any(idx,1);
     if any(idx),
-        warning([ ...
+        warning(sprintf([ ...
             'These subjects don''t exist in the restricted file and will be removed: \n' ...
-            repmat('         %d\n',1,sum(idx))],ids(idx));
+            repmat('         %d\n',1,sum(idx))],ids(idx)));
     end
     ids(idx)   = [];
     tabnew     = zeros(length(ids),size(tab,2));
