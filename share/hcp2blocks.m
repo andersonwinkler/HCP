@@ -27,6 +27,7 @@ function varargout = hcp2blocks(restrfile,blocksfile,dz2sib,ids,showreport)
 %           - 4th col: sib type
 %           - 5th col: family ID
 %           - 6th col: family type
+%           - 7th col: subject's age
 %
 % Reference:
 % * Winkler AM, Webster MA, Vidaurre D, Nichols TE, Smith SM.
@@ -183,9 +184,6 @@ end
 
 % Append the new info to the table.
 tab = horzcat(tab,sibtype,famid,famtype);
-if nargout == 2,
-    varargout{2} = [tab age];
-end
 
 % Families of the same type can be shuffled, as well as sibs of the same
 % type. To do this, the simplest is to construct the blocks within each
@@ -309,6 +307,18 @@ for f = 1:numel(F),
             elseif tmpage(didx(2)) == tmpage(didx(3)),
                 B{f}(didx(1),2) = 10;
             end
+        elseif ft == 2023,
+            tabx = tab(fidx,2:3);
+            for s = 1:size(tabx,1),
+                if      sum(tabx(:,1) == tabx(s,1)) == 4 && ...
+                       (sum(tabx(:,2) == tabx(s,2)) == 1 || ...
+                        sum(tabx(:,2) == tabx(s,2)) == 3) ,
+                    famtype(fidx) = 2029;
+                    if B{f}(s,2) == 10,
+                        B{f}(s,2) = -B{f}(s,2);
+                    end
+                end
+            end
         end
     end
 end
@@ -319,7 +329,9 @@ end
 B = horzcat(-ones(N,1),famtype,cell2mat(B));
 
 % Sort back to the original order
-B = B(idxback,:);
+B   = B(idxback,:);
+tab = tab(idxback,:);
+tab(:,6) = B(:,2);
 
 % Drop columns that are redundant (useful when the supplied ids
 % contain just a few subjects)
@@ -328,8 +340,11 @@ for c = size(B,2):-1:2,
         B(:,c) = [];
     end
 end
-if nargout > 0,
+if nargout >= 1,
     varargout{1} = B;
+end
+if nargout >= 2,
+    varargout{2} = [tab age];
 end
 
 % Save as CSV
@@ -369,6 +384,7 @@ if nargin >= 5 && showreport,
             case 2013, abbrv = '2 MZ + 1 HS';
             case 2022, abbrv = '2 MZ + 2 FS';
             case 2023, abbrv = '2 MZ + 2 HS';
+            case 2029, abbrv = '2 MZ + 1 FS + 1 HS';
             case 2032, abbrv = '2 MZ + 3 FS';
             case 2042, abbrv = '2 MZ + 4 FS';
         end
