@@ -1,4 +1,4 @@
-%function hcpunique(restrfile,listfile)
+function hcpunique(restrfile,listfile)
 % Takes a "restricted" CSV file and produce a random list of "unique"
 % subjects, i.e., subjects that are not known to be related one to another.
 %
